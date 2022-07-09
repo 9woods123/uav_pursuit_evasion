@@ -35,3 +35,14 @@ For multi pursuit  singe evasion:
 The singe evasion UAV should fly at a random evasion theta.
 
 ![屏幕截图 2022-05-08 10:32:44](https://user-images.githubusercontent.com/78521063/178106848-e0b4f2d4-1a7a-4977-abc3-b545c6422018.png)
+
+
+change the  `  random_evasion`  to open the random evasion theta.
+` 
+    <node name="evasion_node" pkg="pursuit_evasion" type="evasion" output="screen">
+          <param name="x" value="2"/>
+          <param name="y" value="3.0"/>
+          <param name="evasion_theta" value="$(arg evasion_theta)"/>
+          <param name="random_evasion" value="false"/>
+      </node>    
+` 
