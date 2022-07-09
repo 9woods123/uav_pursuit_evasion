@@ -1,0 +1,167 @@
+<launch>
+  <arg name="world_name" default="basic"/>
+  <arg name="enable_logging" default="false"/>
+  <arg name="enable_ground_truth" default="true"/>
+  <arg name="mav_evader_name" default="hummingbird" />
+
+
+  <!-- <arg name="pursuerx" default="10.0" />
+  <arg name="pursuery" default="10.0" /> -->
+
+  <arg name="pursuerx" default="6.0" />
+  <arg name="pursuery" default="2" />
+
+  <arg name="pursuer2_x" default="0" />
+  <arg name="pursuer2_y" default="5" />
+
+  <arg name="pursuer3_x" default="0" />
+  <arg name="pursuer3_y" default="0" />
+
+  <arg name="mav_name" default="firefly" />
+  <arg name="evasion_theta" default="1.04" />
+  <arg name="Apollonius" default="true" />
+    <!-- Apollonius is true to open the Apollonius Allocation -->
+
+  <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find rotors_gazebo)/models"/>
+  <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find rotors_gazebo)/models"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find rotors_gazebo)/worlds/$(arg world_name).world"/>
+    <!-- <arg name="debug" value="true"/> -->
+    <arg name="paused" value="false"/>
+    <!-- <arg name="gui" value="false"/> -->
+  </include>
+
+  <group ns="$(arg mav_evader_name)1">
+    <include file="$(find rotors_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_evader_name)" />
+      <arg name="namespace" value="$(arg mav_evader_name)1" />
+      <arg name="model" value="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo" />
+      <arg name="enable_logging" value="$(arg enable_logging)" />
+      <arg name="enable_ground_truth" value="$(arg enable_ground_truth)" />
+      <arg name="log_file" value="$(arg mav_evader_name)1"/>
+      <arg name="x" value="2.0"/>
+      <arg name="y" value="3"/>
+    </include>
+    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/lee_controller_$(arg mav_evader_name).yaml" />
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/$(arg mav_evader_name).yaml" />
+      <remap from="odometry" to="odometry_sensor1/odometry" />
+    </node>
+    <!-- <node name="waypoint_publisher" pkg="rotors_gazebo" type="waypoint_publisher" output="screen" args="0 -1 1 0 2"/> -->
+    <node name="evasion_node" pkg="pursuit_evasion" type="evasion" output="screen">
+          <param name="x" value="2"/>
+          <param name="y" value="3.0"/>
+          <param name="evasion_theta" value="$(arg evasion_theta)"/>
+          <param name="random_evasion" value="true"/>
+
+      
+      </node>    
+
+      <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  </group>
+
+  <group ns="$(arg mav_name)2">
+  
+    <include file="$(find rotors_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="namespace" value="$(arg mav_name)2" />
+      <arg name="model" value="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo" />
+      <arg name="enable_logging" value="$(arg enable_logging)" />
+      <arg name="enable_ground_truth" value="$(arg enable_ground_truth)" />
+      <arg name="log_file" value="$(arg mav_name)2"/>
+      <arg name="x" value="$(arg pursuerx)"/>
+      <arg name="y" value="$(arg pursuery)"/>
+
+    </include>
+
+    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/lee_controller_$(arg mav_name).yaml" />
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/$(arg mav_name).yaml" />
+      <remap from="odometry" to="odometry_sensor1/odometry" />
+    </node>
+
+    <node name="pursuit_node" pkg="pursuit_evasion" type="pursuit" output="log">
+          <param name="x" value="$(arg pursuerx)"/>
+          <param name="y" value="$(arg pursuery)"/>
+          <param name="z" value="2"/>
+          <param name="evasion_theta" value="$(arg evasion_theta)"/>
+          <param name="Apollonius" value="$(arg Apollonius)"/>
+
+          
+      </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  </group>
+
+  <group ns="$(arg mav_name)3">
+  
+    <include file="$(find rotors_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="namespace" value="$(arg mav_name)3" />
+      <arg name="model" value="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo" />
+      <arg name="enable_logging" value="$(arg enable_logging)" />
+      <arg name="enable_ground_truth" value="$(arg enable_ground_truth)" />
+      <arg name="log_file" value="$(arg mav_name)3"/>
+      <arg name="x" value="$(arg pursuer2_x)"/>
+      <arg name="y" value="$(arg pursuer2_y)"/>
+
+    </include>
+
+    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/lee_controller_$(arg mav_name).yaml" />
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/$(arg mav_name).yaml" />
+      <remap from="odometry" to="odometry_sensor1/odometry" />
+    </node>
+
+    <node name="pursuit_node" pkg="pursuit_evasion" type="pursuit" output="screen">
+          <param name="x" value="$(arg pursuer2_x)"/>
+          <param name="y" value="$(arg pursuer2_y)"/>
+          <param name="z" value="2.5"/>
+          <param name="evasion_theta" value="$(arg evasion_theta)"/>
+           <param name="Apollonius" value="$(arg Apollonius)"/>
+
+      </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  </group>
+
+  <group ns="$(arg mav_name)4">
+  
+    <include file="$(find rotors_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="namespace" value="$(arg mav_name)4" />
+      <arg name="model" value="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo" />
+      <arg name="enable_logging" value="$(arg enable_logging)" />
+      <arg name="enable_ground_truth" value="$(arg enable_ground_truth)" />
+      <arg name="log_file" value="$(arg mav_name)4"/>
+      <arg name="x" value="$(arg pursuer3_x)"/>
+      <arg name="y" value="$(arg pursuer3_y)"/>
+
+    </include>
+
+    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/lee_controller_$(arg mav_name).yaml" />
+      <rosparam command="load" file="$(find rotors_gazebo)/resource/$(arg mav_name).yaml" />
+      <remap from="odometry" to="odometry_sensor1/odometry" />
+    </node>
+
+    <node name="pursuit_node" pkg="pursuit_evasion" type="pursuit" output="log">
+          <param name="x" value="$(arg pursuer3_x)"/>
+          <param name="y" value="$(arg pursuer3_y)"/>
+          <param name="z" value="2.8"/>
+          <param name="evasion_theta" value="$(arg evasion_theta)"/>
+          <param name="Apollonius" value="$(arg Apollonius)"/>
+
+      </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  </group>
+
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find pursuit_evasion)/pursuer.rviz"/>
+
+
+</launch>

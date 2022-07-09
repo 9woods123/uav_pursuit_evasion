@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>pursuit_evasion</name>
+    <version>0.0.0</version>
+    <description>pursuit_evasion.</description>
+
+    <author email="2726914442@qq.com">woods</author>
+
+    <maintainer email="2726914442@qq.com">woods</maintainer>
+
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <buildtool_depend>catkin_simple</buildtool_depend>
+
+    <depend>roscpp</depend>
+    <depend>rospy</depend>
+    <depend>rotors_gazebo</depend>
+    <depend>visualization_msgs</depend>
+
+    <!-- Dependencies to run simulation -->
+    <!-- <exec_depend>>mav_nonlinear_mpc</exec_depend>
+    <exec_depend>mav_lowlevel_attitude_controller</exec_depend>
+    <exec_depend>rotors_gazebo</exec_depend>
+    <exec_depend>rotors_description</exec_depend>
+    <exec_depend>unreal_cv_ros</exec_depend> -->
+</package>
